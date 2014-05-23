@@ -21,8 +21,12 @@ namespace CCTagIntermediateCompiler
         internal static bool TagModifications(VMF vmf)
         {
             bool hasChanged = false;
-            hasChanged = Mod_GreenFizzlerFlag(vmf) | hasChanged;
+
+            List<VBlock> entities = vmf.Body.Where(item => item.Name == "entity").Select(item => item as VBlock).ToList();
+            List<VBlock> instances = entities.Where(entity => entity.Body.Where(item => item.Name == "classname" && (item as VProperty).Value == "func_instance").Count() > 0).ToList();
+
             hasChanged = Mod_EnablePaintInMap(vmf) | hasChanged;
+            hasChanged = Mod_GreenFizzlerFlag(instances) | hasChanged;
             return hasChanged;
         }
 
@@ -46,8 +50,10 @@ namespace CCTagIntermediateCompiler
             return hasChanged;
         }
 
-        internal static bool Mod_GreenFizzlerFlag(VMF vmf)
+        internal static bool Mod_GreenFizzlerFlag(List<VBlock> instances)
         {
+            List<VBlock> flags = instances.Where(instance => instance.Body.Where(item => item.Name == "file" && (item as VProperty).Value.EndsWith("CC_GreenFizzlerFlag.vmf")).Count() > 0).ToList();
+
 
             return false;
         }
