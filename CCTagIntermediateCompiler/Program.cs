@@ -23,6 +23,7 @@ namespace CCTagIntermediateCompiler
             vmf = new VMF(File.ReadAllLines(fileName));
             if (TagModifications())
                 File.WriteAllLines(fileName, vmf.ToVMFStrings());
+
         }
 
         internal static bool TagModifications()
