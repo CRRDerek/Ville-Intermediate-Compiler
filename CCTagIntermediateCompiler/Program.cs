@@ -10,11 +10,11 @@ namespace CCTagIntermediateCompiler
 {
     class Program
     {
-        VMF vmf;
-        List<VBlock> entities;
-        List<VBlock> instances;
-        List<VBlock> flags;
-        
+        static private VMF vmf;
+        static private List<VBlock> entities;
+        static private List<VBlock> instances;
+        static private List<VBlock> flags;
+
         static void Main(string[] args)
         {
             string fileName = args.First();
@@ -32,6 +32,7 @@ namespace CCTagIntermediateCompiler
             flags = instances.Where(instance => instance.Body.Where(item => item.Name == "targetname" && (item as VProperty).Value.StartsWith("CC_")).Count() > 0).ToList();
 
             hasChanged = Mod_EnablePaintInMap() | hasChanged;
+            hasChanged = Mod_COOPChanges()      | hasChanged;
             hasChanged = Mod_GreenFizzlerFlag() | hasChanged;
             return hasChanged;
         }
@@ -56,26 +57,76 @@ namespace CCTagIntermediateCompiler
             return hasChanged;
         }
 
+        internal static bool Mod_COOPChanges()
+        {
+            bool hasChanged = false;
+
+            //TODO: if is coop, add point entity where the elevator instance is.
+
+            return hasChanged;
+        }
+
         internal static bool Mod_GreenFizzlerFlag()
         {
             List<VBlock> greenFizzlerFlags = instances.Where(instance => instance.Body.Where(item => item.Name == "targetname" && (item as VProperty).Value.EndsWith("CC_GreenFizzlerFlag.vmf")).Count() > 0).ToList();
-            foreach(var flag in greenFizzlerFlags)
+            foreach (var flag in greenFizzlerFlags)
             {
-                //origin
-                //-48 0 0
-            //TODO: come back to this    
-            string origin = "0 0 0";
-            double[] originParts = origin.Split(' ').Select(s => double.Parse(s)).ToArray();
-            List<string> origins = new List<string> { origin };
-            for (int i = 0; i < 3; i++)
-                for (int j = -48; j <= 48; j += 96)
-                    origins.Add(string.Format("{0} {1} {2}", 
-                        originParts[0] + (i == 0 ? j : 0),
-                        originParts[1] + (i == 1 ? j : 0), 
-                        originParts[2] + (i == 2 ? j : 0)));
-                
+                string origin = "0 0 0";
+                double[] originParts = origin.Split(' ').Select(s => double.Parse(s)).ToArray();
+                List<string> origins = new List<string> { origin };
+                for (int i = 0; i < 3; i++)
+                    for (int j = -48; j <= 48; j += 96)
+                        origins.Add(string.Format("{0} {1} {2}",
+                            originParts[0] + (i == 0 ? j : 0),
+                            originParts[1] + (i == 1 ? j : 0),
+                            originParts[2] + (i == 2 ? j : 0)));
+
+                List<VBlock> fizzlersEmittersToChange = entities.Where(entity =>
+                    entity.Body.FirstOrDefault(property =>
+                        property.Name == "origin" &&
+                        property.GetType() == typeof(VProperty) &&
+                        origins.Contains((property as VProperty).Value) 
+                        ) != null &&
+                        entity.Body.FirstOrDefault(property =>
+                            property.Name.StartsWith("replace") &&
+                            property.GetType() == typeof(VProperty) &&
+                            (property as VProperty).Value.StartsWith("$connectioncount")) ==null)
+                .ToList();
+
+                foreach (var fizzlerEmitter in fizzlersEmittersToChange)
+                {
+                    //Determine if fizzler or laser
+                    bool isLaser = fizzlerEmitter.Body.Where(property => property.Name.StartsWith("replace") && property.GetType() == typeof(VProperty) && (property as VProperty).Value == "$skin 2").Count() == 0;
+
+                    if (isLaser)
+                    {
+                        //Convert to fizzler
+                        //or throw up an error, forget trying to deal with this
+                    }
+
+                    //Determine direction flag is facing, and which way that correlates to the fizzler
+                    //Either throw error when direction is wrong, or perhaps instead just break out, because it could be meant for another fizzler.... just don't process this
+
+                    //find all parts of this item
+                    string targetname = ((VProperty)fizzlerEmitter.Body.FirstOrDefault(property => property.Name == "targetname")).Value;
+                    string name = targetname.Substring(targetname.Length - 4);
+
+                    
+                    //Change emitter instance (if desired)
+
+                    //change fizzler texures
+                    //effects/fizzler_gelgun
+
+
+                    //copy and make trigger
+
+                    //copy and move, and make trigger / twice, needs to know direction for this
+
+                    //find center and place particle emitter based on direction
+
+                }
             }
-            
+
             return false;
         }
     }
