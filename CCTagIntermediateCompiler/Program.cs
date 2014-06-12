@@ -32,7 +32,7 @@ namespace CCTagIntermediateCompiler
             flags = instances.Where(instance => instance.Body.Where(item => item.Name == "targetname" && (item as VProperty).Value.StartsWith("CC_")).Count() > 0).ToList();
 
             hasChanged = Mod_EnablePaintInMap() | hasChanged;
-            hasChanged = Mod_COOPChanges()      | hasChanged;
+            hasChanged = Mod_COOPChanges() | hasChanged;
             hasChanged = Mod_GreenFizzlerFlag() | hasChanged;
             return hasChanged;
         }
@@ -62,6 +62,54 @@ namespace CCTagIntermediateCompiler
             bool hasChanged = false;
 
             //TODO: if is coop, add point entity where the elevator instance is.
+            var coop_exit = instances.Where(instance =>
+                instance.Body.Where(property =>
+                    property.Name == "file" &&
+                    property.GetType() == typeof(VProperty) &&
+                    ((VProperty)property).Value.EndsWith("coop_exit.vmf"))
+                    .Count() == 1).FirstOrDefault();
+
+            var coop_exit_origin = coop_exit.Body.Where(property=> property.Name =="origin" && property.GetType() ==typeof(VProperty)).FirstOrDefault() as VProperty;
+            if(coop_exit_origin ==null)
+            {
+                Console.WriteLine("We have a coop exit, with no origin?");
+                return false;
+            }
+
+            if(coop_exit!=null)
+            {
+                var editorVMF = new string[]{
+                    "editor",
+                    "{",
+                    "\"color\" \"220 30 220\"",
+                    "\"visgroupshown\" \"1\"",
+                    "\"visgroupautoshown\" \"1\"",
+                    "\"logicalpos\" \"[0 0]\"",
+                    "}"
+                };
+
+                //Then this must be coop, lets add our special entity!!!
+                var entity = new VBlock("entity", new List<IVNode>()
+                {
+                    new VProperty("id", vmf.GetUniqueEntityID().ToString()),
+                    new VProperty("classname", "info_target"),
+                    new VProperty("angles", "0 0 0"),
+                    new VProperty("targetname", "supress_blue_portalgun_spawn"),
+                    new VProperty("origin", coop_exit_origin.Value),
+                    new VBlock(new string[]{
+                        "editor",
+                        "{",
+                        "\"color\" \"220 30 220\"",
+                        "\"visgroupshown\" \"1\"",
+                        "\"visgroupautoshown\" \"1\"",
+                        "\"logicalpos\" \"[0 0]\"",
+                        "}"
+                    })
+                });
+                vmf.Body.Add(entity);
+                entities.Add(entity);
+                hasChanged = true;
+            }
 
             return hasChanged;
         }
@@ -85,12 +133,12 @@ namespace CCTagIntermediateCompiler
                     entity.Body.FirstOrDefault(property =>
                         property.Name == "origin" &&
                         property.GetType() == typeof(VProperty) &&
-                        origins.Contains((property as VProperty).Value) 
+                        origins.Contains((property as VProperty).Value)
                         ) != null &&
                         entity.Body.FirstOrDefault(property =>
                             property.Name.StartsWith("replace") &&
                             property.GetType() == typeof(VProperty) &&
-                            (property as VProperty).Value.StartsWith("$connectioncount")) ==null)
+                            (property as VProperty).Value.StartsWith("$connectioncount")) == null)
                 .ToList();
 
                 foreach (var fizzlerEmitter in fizzlersEmittersToChange)
@@ -111,7 +159,7 @@ namespace CCTagIntermediateCompiler
                     string targetname = ((VProperty)fizzlerEmitter.Body.FirstOrDefault(property => property.Name == "targetname")).Value;
                     string name = targetname.Substring(targetname.Length - 4);
 
-                    
+
                     //Change emitter instance (if desired)
 
                     //change fizzler texures
