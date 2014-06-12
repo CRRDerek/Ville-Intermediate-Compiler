@@ -20,17 +20,16 @@ namespace CCTagIntermediateCompiler
                 if (int.TryParse(idProperty.Value, out id))
                 {
                     //make sure this is not already used
-                    string idCheck = id.ToString();
                     while (vmf.Body.Where(entry =>
                         entry.GetType() == typeof(VBlock) &&
                         entry.Name == "entity" &&
                         ((VBlock)entry).Body.Where(property =>
                             property.Name == "id" &&
                             property.GetType() == typeof(VProperty) &&
-                            ((VProperty)property).Value == idCheck)
+                            ((VProperty)property).Value == id.ToString())
                             .Count() > 0)
                         .Count() > 0)
-                        id = (id * 10) + 1;
+                        id++;
                 }
                 else
                     id = 100;
