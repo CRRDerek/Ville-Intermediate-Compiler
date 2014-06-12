@@ -17,6 +17,8 @@ namespace CCTagIntermediateCompiler
 
         static void Main(string[] args)
         {
+            args = new string[] { "preview.vmf" };
+
             string fileName = args.First();
             vmf = new VMF(File.ReadAllLines(fileName));
             if (TagModifications())
