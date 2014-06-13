@@ -17,13 +17,18 @@ namespace CCTagIntermediateCompiler
 
         static void Main(string[] args)
         {
-            args = new string[] { "preview.vmf" };
-
-            string fileName = args.First();
-            vmf = new VMF(File.ReadAllLines(fileName));
-            if (TagModifications())
-                File.WriteAllLines(fileName, vmf.ToVMFStrings());
-
+            //args = new string[] { "preview.vmf" };
+            try
+            {
+                string fileName = args.FirstOrDefault();
+                vmf = new VMF(File.ReadAllLines(fileName));
+                if (TagModifications())
+                    File.WriteAllLines(fileName, vmf.ToVMFStrings());
+            }
+            catch (Exception ex)
+            {
+                File.WriteAllText("errors.txt", ex.ToString());
+            }
         }
 
         internal static bool TagModifications()
