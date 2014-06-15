@@ -37,5 +37,18 @@ namespace CCTagIntermediateCompiler
 
             return id;
         }
+
+        /// <summary>Performs a deep clone of this block. </summary>
+        /// DeepClone should be added to the IVNode interface, and these methods moved into that library
+        public static VBlock DeepClone(this VBlock vBlock)
+        {
+            return new VBlock(vBlock.Name, vBlock.Body ==null? null:
+                vBlock.Body.Select(node=> node.GetType()==typeof(VBlock)? ((VBlock)node).DeepClone(): (IVNode)((VProperty)node).DeepClone()).ToList());
+        }
+
+        public static VProperty DeepClone(this VProperty vProperty)
+        {
+            return new VProperty(vProperty.Name, vProperty.Value);
+        }
     }
 }

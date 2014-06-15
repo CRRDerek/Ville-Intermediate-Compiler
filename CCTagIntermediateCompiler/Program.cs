@@ -17,7 +17,7 @@ namespace CCTagIntermediateCompiler
 
         static void Main(string[] args)
         {
-            //args = new string[] { "preview.vmf" };
+            args = new string[] { "preview.vmf" };
             try
             {
                 string fileName = args.FirstOrDefault();
@@ -69,7 +69,7 @@ namespace CCTagIntermediateCompiler
         {
             bool hasChanged = false;
 
-            //TODO: if is coop, add point entity where the elevator instance is.
+            //If is coop, add point entity where the elevator instance is.
             var coop_exit = instances.Where(instance =>
                 instance.Body.Where(property =>
                     property.Name == "file" &&
@@ -166,7 +166,12 @@ namespace CCTagIntermediateCompiler
                     //find all parts of this item
                     string targetname = ((VProperty)fizzlerEmitter.Body.FirstOrDefault(property => property.Name == "targetname")).Value;
                     string name = targetname.Substring(targetname.Length - 4);
-
+                    
+                    VBlock fizzlerBrush = entities.Where(entity => entity.GetType() == typeof(VBlock) && 
+                        ((VBlock)entity).Body.Where(property => property.Name == "targetname" && 
+                            property.GetType() == typeof(VProperty) && 
+                            ((VProperty)property).Value.EndsWith(name + "_brush")).Count() == 1
+                        ).FirstOrDefault();
 
                     //Change emitter instance (if desired)
 
@@ -175,6 +180,7 @@ namespace CCTagIntermediateCompiler
 
 
                     //copy and make trigger
+                    
 
                     //copy and move, and make trigger / twice, needs to know direction for this
 
