@@ -17,7 +17,7 @@ namespace CCTagIntermediateCompiler
 
         static void Main(string[] args)
         {
-            args = new string[] { "preview.vmf" };
+            //args = new string[] { "test_instances.vmf" }; //REMOVE TEST DATA WHEN DEPLOYING :P
             try
             {
                 string fileName = args.FirstOrDefault();
@@ -39,9 +39,10 @@ namespace CCTagIntermediateCompiler
             instances = entities.Where(entity => entity.Body.Where(item => item.Name == "classname" && (item as VProperty).Value == "func_instance").Count() > 0).ToList();
             flags = instances.Where(instance => instance.Body.Where(item => item.Name == "targetname" && (item as VProperty).Value.StartsWith("CC_")).Count() > 0).ToList();
 
-            hasChanged = Mod_EnablePaintInMap() | hasChanged;
-            hasChanged = Mod_COOPChanges() | hasChanged;
-            hasChanged = Mod_GreenFizzlerFlag() | hasChanged;
+            hasChanged = Mod_EnablePaintInMap() || hasChanged;
+            hasChanged = Mod_COOPChanges()      || hasChanged;
+            hasChanged = Mod_GreenFizzlerFlag() || hasChanged;
+
             return hasChanged;
         }
 
