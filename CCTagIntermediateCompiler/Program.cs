@@ -77,15 +77,19 @@ namespace CCTagIntermediateCompiler
                     ((VProperty)property).Value.EndsWith("coop_exit.vmf"))
                     .Count() == 1).FirstOrDefault();
 
-            var coop_exit_origin = coop_exit.Body.Where(property=> property.Name =="origin" && property.GetType() ==typeof(VProperty)).FirstOrDefault() as VProperty;
-            if(coop_exit_origin ==null)
+            var coop_exit_origin = coop_exit.Body.Where(property => property.Name == "origin" && property.GetType() == typeof(VProperty)).FirstOrDefault() as VProperty;
+            if (coop_exit_origin == null)
             {
                 Console.WriteLine("We have a coop exit, with no origin?");
                 return false;
             }
 
-            if(coop_exit!=null)
+            if (coop_exit != null)
             {
+                //Then this must be coop
+
+                #region Add our special entity!!!
+
                 var editorVMF = new string[]{
                     "editor",
                     "{",
@@ -96,7 +100,6 @@ namespace CCTagIntermediateCompiler
                     "}"
                 };
 
-                //Then this must be coop, lets add our special entity!!!
                 var entity = new VBlock("entity", new List<IVNode>()
                 {
                     new VProperty("id", vmf.GetUniqueEntityID().ToString()),
@@ -116,6 +119,18 @@ namespace CCTagIntermediateCompiler
                 });
                 vmf.Body.Add(entity);
                 entities.Add(entity);
+
+                #endregion
+
+                #region Swap all singleplayer instances for coop instances.
+                foreach(var instance in instances)
+                {
+                    var file = instance.Body.FirstOrDefault(property => property.GetType() == typeof(VProperty) && property.Name == "file") as VProperty;
+                    if(file.Value.EndsWith("_sp.vmf"))
+                        file.Value = file.Value.Replace("_sp.vmf", "_coop.vmf");
+                }
+                #endregion
+
                 hasChanged = true;
             }
 
@@ -166,10 +181,10 @@ namespace CCTagIntermediateCompiler
                     //find all parts of this item
                     string targetname = ((VProperty)fizzlerEmitter.Body.FirstOrDefault(property => property.Name == "targetname")).Value;
                     string name = targetname.Substring(targetname.Length - 4);
-                    
-                    VBlock fizzlerBrush = entities.Where(entity => entity.GetType() == typeof(VBlock) && 
-                        ((VBlock)entity).Body.Where(property => property.Name == "targetname" && 
-                            property.GetType() == typeof(VProperty) && 
+
+                    VBlock fizzlerBrush = entities.Where(entity => entity.GetType() == typeof(VBlock) &&
+                        ((VBlock)entity).Body.Where(property => property.Name == "targetname" &&
+                            property.GetType() == typeof(VProperty) &&
                             ((VProperty)property).Value.EndsWith(name + "_brush")).Count() == 1
                         ).FirstOrDefault();
 
@@ -180,7 +195,7 @@ namespace CCTagIntermediateCompiler
 
 
                     //copy and make trigger
-                    
+
 
                     //copy and move, and make trigger / twice, needs to know direction for this
 
