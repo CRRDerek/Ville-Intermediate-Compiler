@@ -17,7 +17,7 @@ namespace CCTagIntermediateCompiler
 
         static void Main(string[] args)
         {
-            //args = new string[] { "test_instances.vmf" }; //REMOVE TEST DATA WHEN DEPLOYING :P
+            args = new string[] { "preview.vmf" }; //REMOVE TEST DATA WHEN DEPLOYING :P
             try
             {
                 string fileName = args.FirstOrDefault();
@@ -40,7 +40,7 @@ namespace CCTagIntermediateCompiler
             flags = instances.Where(instance => instance.Body.Where(item => item.Name == "targetname" && (item as VProperty).Value.StartsWith("CC_")).Count() > 0).ToList();
 
             hasChanged = Mod_EnablePaintInMap() || hasChanged;
-            hasChanged = Mod_COOPChanges()      || hasChanged;
+            hasChanged = Mod_COOPChanges() || hasChanged;
             hasChanged = Mod_GreenFizzlerFlag() || hasChanged;
 
             return hasChanged;
@@ -77,17 +77,15 @@ namespace CCTagIntermediateCompiler
                     property.GetType() == typeof(VProperty) &&
                     ((VProperty)property).Value.EndsWith("coop_exit.vmf"))
                     .Count() == 1).FirstOrDefault();
-
-            var coop_exit_origin = coop_exit.Body.Where(property => property.Name == "origin" && property.GetType() == typeof(VProperty)).FirstOrDefault() as VProperty;
-            if (coop_exit_origin == null)
-            {
-                Console.WriteLine("We have a coop exit, with no origin?");
-                return false;
-            }
-
             if (coop_exit != null)
             {
                 //Then this must be coop
+                var coop_exit_origin = coop_exit.Body.Where(property => property.Name == "origin" && property.GetType() == typeof(VProperty)).FirstOrDefault() as VProperty;
+                if (coop_exit_origin == null)
+                {
+                    Console.WriteLine("We have a coop exit, with no origin?");
+                    return false;
+                }
 
                 #region Add our special entity!!!
 
@@ -124,10 +122,10 @@ namespace CCTagIntermediateCompiler
                 #endregion
 
                 #region Swap all singleplayer instances for coop instances.
-                foreach(var instance in instances)
+                foreach (var instance in instances)
                 {
                     var file = instance.Body.FirstOrDefault(property => property.GetType() == typeof(VProperty) && property.Name == "file") as VProperty;
-                    if(file.Value.EndsWith("_sp.vmf"))
+                    if (file.Value.EndsWith("_sp.vmf"))
                         file.Value = file.Value.Replace("_sp.vmf", "_coop.vmf");
                 }
                 #endregion
