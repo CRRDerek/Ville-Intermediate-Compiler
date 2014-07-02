@@ -17,7 +17,9 @@ namespace CCTagIntermediateCompiler
 
         static void Main(string[] args)
         {
+#if debug
             args = new string[] { "preview.vmf" }; //REMOVE TEST DATA WHEN DEPLOYING :P
+#endif
             try
             {
                 string fileName = args.FirstOrDefault();
