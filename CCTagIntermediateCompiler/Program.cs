@@ -17,7 +17,7 @@ namespace CCTagIntermediateCompiler
 
         static void Main(string[] args)
         {
-#if debug
+#if DEBUG
             args = new string[] { "preview.vmf" }; //REMOVE TEST DATA WHEN DEPLOYING :P
 #endif
             try
@@ -159,6 +159,7 @@ namespace CCTagIntermediateCompiler
                 VBlock copy = fizzler.DeepClone();
                 (copy.Body.First(property => property.Name == "id") as VProperty).Value = vmf.GetUniqueID().ToString(); //TODO: Add method for generating new ids automatically to the VMF class.
                 (copy.Body.First(property => property.Name == "classname") as VProperty).Value = "trigger_paint_cleanser";
+                (copy.Body.First(property => property.Name == "spawnflags") as VProperty).Value = "64";
 
                 vmf.Body.Add(copy);
 
