@@ -39,9 +39,10 @@ namespace CCTagIntermediateCompiler
             instances = entities.Where(entity => entity.Body.Where(item => item.Name == "classname" && (item as VProperty).Value == "func_instance").Count() > 0).ToList();
             flags = instances.Where(instance => instance.Body.Where(item => item.Name == "targetname" && (item as VProperty).Value.StartsWith("CC_")).Count() > 0).ToList();
 
-            hasChanged = Mod_EnablePaintInMap() || hasChanged;
-            hasChanged = Mod_COOPChanges() || hasChanged;
-            hasChanged = Mod_GreenFizzlerFlag() || hasChanged;
+            hasChanged = Mod_EnablePaintInMap()   || hasChanged;
+            hasChanged = Mod_COOPChanges()        || hasChanged;
+            hasChanged = Mod_BlueFizzlerChanges() || hasChanged;
+            //hasChanged = Mod_GreenFizzlerFlag() || hasChanged;
 
             return hasChanged;
         }
@@ -101,7 +102,7 @@ namespace CCTagIntermediateCompiler
 
                 var entity = new VBlock("entity", new List<IVNode>()
                 {
-                    new VProperty("id", vmf.GetUniqueEntityID().ToString()),
+                    new VProperty("id", vmf.GetUniqueID().ToString()),
                     new VProperty("classname", "info_target"),
                     new VProperty("angles", "0 0 0"),
                     new VProperty("targetname", "supress_blue_portalgun_spawn"),
@@ -133,6 +134,40 @@ namespace CCTagIntermediateCompiler
                 hasChanged = true;
             }
 
+            return hasChanged;
+        }
+
+        internal static bool Mod_BlueFizzlerChanges()
+        {
+            bool hasChanged = false;
+
+            List<VBlock> fizzlers = entities.Where(entity => entity.GetType() == typeof(VBlock) &&
+                                                             //entity.Body.FirstOrDefault(property => property.GetType() == typeof(VProperty) &&
+                                                             //                                       property.Name == "targetname" &&
+                                                             //                                       (property as VProperty).Value.StartsWith("barrierhazard") &&
+                                                             //                                       (property as VProperty).Value.EndsWith("_brush")
+                                                             //                                       ) != null &&
+                                                             entity.Body.FirstOrDefault(property => property.GetType() == typeof(VProperty) &&
+                                                                                                    property.Name == "classname" &&
+                                                                                                    (property as VProperty).Value == "trigger_portal_cleanser"
+                                                                                                    ) != null
+                                                             ).Select(entity => entity as VBlock).ToList();
+            foreach(var fizzler in fizzlers)
+            {
+                VBlock copy = fizzler.DeepClone();
+                (copy.Body.First(property => property.Name == "id") as VProperty).Value = vmf.GetUniqueID().ToString(); //TODO: Add method for generating new ids automatically to the VMF class.
+                (copy.Body.First(property => property.Name == "classname") as VProperty).Value = "trigger_paintcleanser";
+
+                vmf.Body.Add(copy);
+
+                //I wonder if it will be a problem that the brushes and sides don't have unique IDs... lets change them to be sure.
+                foreach (VBlock solid in copy.Body.Where(property => property.GetType() == typeof(VBlock) && property.Name == "solid").Select(property => property as VBlock))
+                {
+                    (solid.Body.First(property => property.Name == "id") as VProperty).Value = vmf.GetUniqueID().ToString();
+                    foreach (VBlock side in solid.Body.Where(property => property.GetType() == typeof(VBlock) && property.Name == "side").Select(property => property as VBlock))
+                        (side.Body.First(property => property.Name == "id") as VProperty).Value = vmf.GetUniqueID().ToString();
+                }
+            }
             return hasChanged;
         }
 
