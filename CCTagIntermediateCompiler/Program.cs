@@ -156,7 +156,7 @@ namespace CCTagIntermediateCompiler
             {
                 VBlock copy = fizzler.DeepClone();
                 (copy.Body.First(property => property.Name == "id") as VProperty).Value = vmf.GetUniqueID().ToString(); //TODO: Add method for generating new ids automatically to the VMF class.
-                (copy.Body.First(property => property.Name == "classname") as VProperty).Value = "trigger_paintcleanser";
+                (copy.Body.First(property => property.Name == "classname") as VProperty).Value = "trigger_paint_cleanser";
 
                 vmf.Body.Add(copy);
 
