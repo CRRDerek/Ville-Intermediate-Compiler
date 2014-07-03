@@ -168,7 +168,10 @@ namespace CCTagIntermediateCompiler
                 {
                     (solid.Body.First(property => property.Name == "id") as VProperty).Value = vmf.GetUniqueID().ToString();
                     foreach (VBlock side in solid.Body.Where(property => property.GetType() == typeof(VBlock) && property.Name == "side").Select(property => property as VBlock))
+                    {
                         (side.Body.First(property => property.Name == "id") as VProperty).Value = vmf.GetUniqueID().ToString();
+                        (side.Body.First(property => property.Name == "material") as VProperty).Value = "tools/toolstrigger";
+                    }
                 }
             }
             return hasChanged;
