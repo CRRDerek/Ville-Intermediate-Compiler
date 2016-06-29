@@ -7,8 +7,8 @@
     <ProjectGuid>{38509549-9046-4492-985D-8B6823748F62}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CCTagIntermediateCompiler</RootNamespace>
-    <AssemblyName>CCTagIntermediateCompiler</AssemblyName>
+    <RootNamespace>CCVilleIntermediateCompiler</RootNamespace>
+    <AssemblyName>CCVilleIntermediateCompiler</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
